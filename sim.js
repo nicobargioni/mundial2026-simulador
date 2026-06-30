@@ -46,8 +46,12 @@ if (typeof document !== 'undefined') {
   const fmt = p => (p*100).toFixed(1)+'%';
   $('#year').textContent='datos a jun-2026';
 
+  // tira de banderas: dos filas idénticas y anchas -> loop perfecto, sin huecos
   const flags=Object.values(T).map(t=>t.flag);
-  $('#ticker').textContent = flags.concat(flags).join('  ');
+  const sep='  ';
+  const block=(flags.join(sep)+sep).repeat(3);
+  const tk=$('#ticker'), tk2=$('#ticker2');
+  if(tk) tk.textContent=block; if(tk2) tk2.textContent=block;
 
   // tarjeta de credibilidad
   const S=DATA.stats;

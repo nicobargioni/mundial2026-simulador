@@ -24,14 +24,10 @@
 </nav>
 
 <header class="hero" id="prediccion">
-  <div class="flags-ticker" id="ticker" aria-hidden="true"></div>
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track"><span class="ticker-row" id="ticker"></span><span class="ticker-row" id="ticker2"></span></div>
+  </div>
   <div class="hero-grid">
-
-    <aside class="glass card">
-      <div class="card-head"><h2>Predicción</h2><span class="kicker">campeón</span></div>
-      <div class="podium" id="podium"><span class="loading">Simulando…</span></div>
-      <p class="card-foot">Probabilidad de salir campeón · de 10.000 simulaciones del cuadro real.</p>
-    </aside>
 
     <div class="centerpiece">
       <div class="trophy-stage">
@@ -47,7 +43,14 @@
       </div>
     </div>
 
-    <aside class="glass card cred" id="cred"></aside>
+    <div class="hero-cards">
+      <aside class="glass card pred">
+        <div class="card-head"><h2>Predicción</h2><span class="kicker">campeón</span></div>
+        <div class="podium" id="podium"><span class="loading">Simulando…</span></div>
+        <p class="card-foot">Probabilidad de salir campeón · de 10.000 simulaciones del cuadro real.</p>
+      </aside>
+      <aside class="glass card cred" id="cred"></aside>
+    </div>
   </div>
 </header>
 
@@ -81,16 +84,16 @@
       </div>
       <div class="build-col">
         <h3 class="bh"><span class="n">③</span>Ensamble + Monte Carlo</h3>
-        <p>Promediamos las probabilidades de los seis modelos (un <b>ensamble</b> suele acertar más que cualquiera
-          por separado), las <b>calibramos</b> con temperatura para que digan la verdad, y con esa probabilidad
-          jugamos el torneo <b>10.000 veces</b> sobre el <b>cuadro real verificado</b> — de la ronda de 32 a la final.</p>
+        <p>Promedié las probabilidades de los seis modelos (un <b>ensamble</b> suele acertar más que cualquiera
+          por separado), las <b>calibré</b> con temperatura para que digan la verdad, y con esa probabilidad
+          juego el torneo <b>10.000 veces</b> sobre el <b>cuadro real verificado</b> — de la ronda de 32 a la final.</p>
       </div>
     </div>
   </section>
 
   <section class="glass panel" id="prob-section">
     <h2>Probabilidad de campeón <span class="sub">· 10.000 simulaciones</span></h2>
-    <p class="lead">Cada partido que falta es incierto, así que jugamos el torneo diez mil veces y contamos
+    <p class="lead">Cada partido que falta es incierto, así que juego el torneo diez mil veces y cuento
       cuántas gana cada uno. Eso es la probabilidad: estable y repetible — no el resultado de una corrida con suerte.</p>
     <div id="prob-bars" class="bars"></div>
   </section>
@@ -139,7 +142,7 @@
       <section class="glass edu" id="edu-mc">
         <span class="tag">2 · azar</span>
         <h3>Monte Carlo: jugarlo mil veces</h3>
-        <p>No alcanza con jugar el torneo una vez. Lo jugamos miles y contamos. Mirá cómo el porcentaje se
+        <p>No alcanza con jugar el torneo una vez. Lo juego miles de veces y cuento. Mirá cómo el porcentaje se
           <b>estabiliza</b> al sumar simulaciones:</p>
         <canvas id="mc-canvas" height="150" aria-label="Convergencia de la probabilidad"></canvas>
         <div class="mc-controls">
@@ -151,7 +154,7 @@
       <section class="glass edu" id="edu-dc">
         <span class="tag">3 · goles</span>
         <h3>Dixon-Coles: del rating al marcador</h3>
-        <p>Convertimos la fuerza en <b>goles esperados</b> y calculamos la probabilidad de cada marcador
+        <p>Convierto la fuerza en <b>goles esperados</b> y calculo la probabilidad de cada marcador
           (los empates bajos pesan un poco más). Probabilidad de cada resultado:</p>
         <div class="duel"><select id="dc-a" class="sel"></select><span class="vs">vs</span><select id="dc-b" class="sel"></select></div>
         <div id="dc-grid" class="dc-grid" role="img" aria-label="Mapa de calor de marcadores probables"></div>
