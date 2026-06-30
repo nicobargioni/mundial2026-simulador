@@ -1,0 +1,39 @@
+name: Actualizar predicción
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"     # cada 6 horas
+  workflow_dispatch: {}         # permite correrlo a mano desde la pestaña Actions
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-prediction
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r scripts/requirements.txt
+      - name: Recalcular predicción
+        working-directory: scripts
+        run: python update.py
+      - name: Commit y push si cambió data.js
+        run: |
+          git config user.name "mundial2026-bot"
+          git config user.email "actions@users.noreply.github.com"
+          if git diff --quiet -- data.js; then
+            echo "Sin cambios en la predicción."
+          else
+            git add data.js
+            git commit -m "auto: actualizar predicción ($(date -u +%Y-%m-%dT%H:%MZ))"
+            git push
+            echo "Predicción actualizada y pusheada."
+          fi
