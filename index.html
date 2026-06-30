@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Predicción Mundial 2026 · ¿quién sale campeón?</title>
-<meta name="description" content="Predicción del Mundial 2026 con un modelo estadístico (Elo + Dixon-Coles + Monte Carlo) calibrado, corriendo en tu navegador. Probabilidad de campeón de cada selección.">
+<meta name="description" content="Predicción del Mundial 2026 con un modelo estadístico (Elo + Dixon-Coles + Monte Carlo) calibrado, corriendo en tu navegador. Mirá las simulaciones converger en vivo.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
@@ -16,26 +16,72 @@
   <div class="hero-in">
     <p class="eyebrow">EE.UU. · Canadá · México — ronda de 32 en juego</p>
     <h1>¿Quién gana el <span class="gold">Mundial 2026</span>?</h1>
-    <p class="dek">Esto es lo que <b>predice el modelo</b>: con qué frecuencia gana cada selección si el torneo
-      que falta se jugara <b>10.000 veces</b>. Un modelo estadístico calibrado (Elo + Dixon-Coles + machine
-      learning) que corre entero <b>en tu navegador</b>, con datos reales de partidos internacionales.</p>
-    <div class="podium" id="podium"><span class="loading">Calculando 10.000 simulaciones…</span></div>
+    <p class="dek">Esto es lo que <b>predice el modelo</b>. Mirá las <b>10.000 simulaciones</b> del torneo
+      acumularse en vivo y asentarse en la probabilidad de campeón de cada selección.</p>
+
+    <div class="mc-live">
+      <div class="podium" id="podium"><span class="loading">Simulando…</span></div>
+      <div class="mc-meter">
+        <canvas id="hero-mc" height="66" aria-label="Convergencia de la simulación"></canvas>
+        <div class="mc-status"><b id="sim-counter">0</b> simulaciones · <span id="sim-fav">arrancando…</span></div>
+        <button id="btn-recalc" class="btn btn-mini">🔄 volver a tirar 10.000</button>
+      </div>
+    </div>
+
+    <div class="hero-explain">
+      <div class="he-item"><b>① Qué es</b><span>La predicción del campeón: la probabilidad de que cada
+        selección gane el Mundial que falta.</span></div>
+      <div class="he-item"><b>② Qué ves</b><span>El <b>podio</b> son los 3 más probables; la curva muestra cómo
+        la probabilidad se <b>estabiliza</b> al sumar simulaciones. Abajo, el ranking completo.</span></div>
+      <div class="he-item"><b>③ De dónde sale</b><span>Un <b>ensamble calibrado de 6 modelos</b> jugando el
+        torneo 10.000 veces. <a href="#glosario">Ver glosario →</a></span></div>
+    </div>
   </div>
 </header>
 
 <main>
   <section class="panel" id="prob-section">
-    <h2>Probabilidad de campeón <span class="sub" id="prob-sub">· 10.000 simulaciones</span></h2>
-    <p class="lead">Cada partido que falta es incierto, así que jugamos el torneo diez mil veces y contamos cuántas
-      gana cada uno. Eso es la probabilidad: estable, repetible — no el resultado de una corrida con suerte.</p>
+    <h2>Probabilidad de campeón <span class="sub">· 10.000 simulaciones</span></h2>
+    <p class="lead">Cada partido que falta es incierto, así que jugamos el torneo diez mil veces y contamos
+      cuántas gana cada uno. Eso es la probabilidad: estable y repetible — no el resultado de una corrida con suerte.</p>
     <div id="prob-bars" class="bars"></div>
-    <button id="btn-recalc" class="btn btn-mini" style="margin-top:16px">🔄 volver a tirar 10.000</button>
   </section>
 
   <section class="panel cred" id="cred"></section>
 
+  <section class="panel" id="glosario">
+    <h2>Glosario <span class="sub">qué significa cada cosa</span></h2>
+    <p class="lead">Las ideas y las métricas, en criollo.</p>
+    <div class="gloss">
+      <div class="term"><b>Probabilidad de campeón</b><p>De cada 100 torneos simulados, en cuántos sale campeona
+        esa selección. Es un reparto: suma 100% entre todos.</p></div>
+      <div class="term"><b>Simulación de Monte Carlo</b><p>Jugar el torneo miles de veces tirando una "moneda
+        cargada" en cada partido (el favorito tiene más chance, no la certeza) y contar los resultados. La
+        probabilidad <i>emerge</i> de la repetición.</p></div>
+      <div class="term"><b>Elo</b><p>Un rating de fuerza por selección: sube al ganar, baja al perder, y pesa más
+        vencer a un rival fuerte. La diferencia de Elo entre dos equipos se traduce en probabilidad.</p></div>
+      <div class="term"><b>Modelo de goles (Poisson / Dixon-Coles)</b><p>Predice cuántos goles mete cada equipo.
+        <b>Dixon-Coles</b> corrige un detalle real: los empates 0-0 y 1-1 ocurren más seguido de lo que dice la
+        fórmula simple.</p></div>
+      <div class="term"><b>Ensamble</b><p>Combinar 6 modelos distintos (Elo, goles, regresión logística, Random
+        Forest, XGBoost y red neuronal) promediando sus probabilidades. Suele predecir mejor que cualquiera solo.</p></div>
+      <div class="term"><b>Calibración</b><p>Ajustar las probabilidades para que <i>digan la verdad</i>: que de las
+        cosas a las que les asigna 70%, ocurran cerca del 70% de las veces.</p></div>
+      <div class="term"><b>Recencia</b><p>Al entrenar, pesar más los partidos recientes que los viejos: el
+        presente informa mejor que 2010.</p></div>
+      <div class="term"><b>Accuracy (aciertos)</b><p>El % de partidos donde el modelo le pegó al resultado
+        (gana uno / empate / gana el otro). Acá: <b>60%</b> de 73 partidos ya jugados.</p></div>
+      <div class="term"><b>RPS — Ranked Probability Score</b><p>Mide el error de las <i>probabilidades</i> teniendo
+        en cuenta el orden (ganar–empatar–perder). <b>0 = perfecto; más bajo, mejor.</b> Castiga poco errar por poco.</p></div>
+      <div class="term"><b>Log-loss</b><p>Otra medida del error de las probabilidades. Castiga fuerte estar muy
+        seguro y equivocarse. <b>Más bajo, mejor.</b></p></div>
+      <div class="term"><b>Out-of-sample</b><p>Probar el modelo en partidos que <i>no vio</i> al entrenar — la
+        única forma honesta de medir si funciona.</p></div>
+    </div>
+  </section>
+
   <section class="edu-intro panel">
-    <h2>¿Cómo funciona? <span class="sub">tres ideas, en vivo</span></h2>
+    <h2>¿Cómo funciona? <span class="sub">las piezas, en vivo</span></h2>
     <p class="lead">No hay magia: tres herramientas clásicas encadenadas. Jugá con cada una.</p>
   </section>
 
@@ -71,8 +117,8 @@
       <span class="tag">3 · goles</span>
       <h3>Dixon-Coles: del rating al marcador</h3>
       <p>Convertimos la fuerza en <b>goles esperados</b> y calculamos la probabilidad de cada marcador.
-        Dixon-Coles corrige un detalle real: los empates 0-0 y 1-1 pasan más seguido de lo que dice la fórmula
-        simple. Probabilidad de cada resultado:</p>
+        Dixon-Coles corrige que los empates 0-0 y 1-1 pasan más seguido de lo que dice la fórmula simple.
+        Probabilidad de cada resultado:</p>
       <div class="duel">
         <select id="dc-a" class="sel"></select>
         <span class="vs">vs</span>
@@ -86,15 +132,11 @@
   <section class="panel methodology">
     <h2>La cocina</h2>
     <ul>
-      <li><b>Datos:</b> ~49.500 partidos internacionales (1872→2026). El modelo se entrena con resultados reales,
-        pesando más los recientes (recencia).</li>
-      <li><b>Estado real:</b> al 29-jun-2026 terminó la fase de grupos y arrancó la ronda de 32. Quedan 31 partidos
-        por jugar; el modelo simula desde ahí.</li>
+      <li><b>Datos:</b> ~49.500 partidos internacionales (1872→2026), pesando más los recientes (recencia).</li>
+      <li><b>Estado real:</b> al 29-jun-2026 terminó la fase de grupos y arrancó la ronda de 32. Quedan 31
+        partidos por jugar; el modelo simula desde ahí.</li>
       <li><b>Modelo:</b> un <b>ensamble</b> de 6 modelos (Elo, Dixon-Coles/Poisson, regresión, Random Forest,
-        XGBoost y red neuronal), calibrado, que define cada cruce; el torneo se juega 10.000 veces con Monte Carlo.
-        Los empates en eliminación se resuelven por penales con leve ventaja al de mejor Elo.</li>
-      <li><b>Los paneles de arriba</b> muestran las "piezas" del modelo por separado (Elo, goles); la predicción
-        combina las seis.</li>
+        XGBoost y red neuronal), calibrado, que define cada cruce; el torneo se juega 10.000 veces con Monte Carlo.</li>
       <li><b>Límites honestos:</b> cancha neutral, sin lesiones ni convocatorias. Es un mapa de probabilidades,
         no una bola de cristal.</li>
     </ul>

@@ -60,20 +60,20 @@ if (typeof document !== 'undefined') {
     <p>Medido contra los <b>${S.n} partidos del Mundial que ya se jugaron</b> y que el modelo <b>no vio</b> al
       entrenar. Acierta cerca de <b>6 de cada 10</b>: el fútbol es ruidoso por diseño, pero le gana claro al azar.</p>`;
 
-  // ---------- PREDICCIÓN (corre sola al entrar) ----------
+  // ---------- PREDICCIÓN con ANIMACIÓN de Monte Carlo (corre sola al entrar) ----------
   const MEDAL=['🥇','🥈','🥉'];
-  function renderPrediction(){
-    const N=10000, c=monteCarlo(N);
-    const arr=Object.entries(c).map(([t,n])=>[t,n/N]).sort((a,b)=>b[1]-a[1]);
-    // podio top 3
-    const pod=$('#podium'); pod.innerHTML='';
+  const pod=$('#podium'), counter=$('#sim-counter'), favEl=$('#sim-fav');
+  const hcanvas=$('#hero-mc'), hctx=hcanvas.getContext('2d');
+  function renderPodium(arr){
+    pod.innerHTML='';
     arr.slice(0,3).forEach(([t,p],i)=>{
       const c=el('div','pod'+(i===0?' p1':''));
       c.innerHTML=`<span class="medal">${MEDAL[i]}</span><span class="pflag">${T[t].flag}</span>
         <span class="pname">${T[t].es}</span><span class="ppct">${fmt(p)}</span>`;
       pod.append(c);
     });
-    // barras top 10
+  }
+  function renderBars(arr){
     const box=$('#prob-bars'); box.innerHTML=''; const max=arr[0][1];
     arr.slice(0,10).forEach(([t,p],i)=>{
       const row=el('div','barrow'+(i===0?' lead':''));
@@ -83,7 +83,39 @@ if (typeof document !== 'undefined') {
       box.append(row);
     });
   }
-  $('#btn-recalc').onclick=()=>{ $('#btn-recalc').disabled=true; setTimeout(()=>{renderPrediction(); $('#btn-recalc').disabled=false;},20); };
+  function drawHero(hist){
+    const w=hcanvas.width=hcanvas.clientWidth, h=hcanvas.height; hctx.clearRect(0,0,w,h);
+    const top=Math.max(0.35, Math.max(...hist,0.2)*1.25);
+    hctx.strokeStyle='rgba(255,255,255,.08)';
+    for(let g=0;g<=2;g++){const y=h-(g/2)*(h-12)-6; hctx.beginPath();hctx.moveTo(0,y);hctx.lineTo(w,y);hctx.stroke();}
+    if(hist.length<2) return;
+    const gold=getComputedStyle(document.documentElement).getPropertyValue('--gold')||'#f0c24b';
+    hctx.strokeStyle=gold; hctx.lineWidth=2.2; hctx.beginPath();
+    hist.forEach((v,i)=>{const x=(i/(hist.length-1))*w; const y=h-(v/top)*(h-12)-6; i?hctx.lineTo(x,y):hctx.moveTo(x,y);});
+    hctx.stroke();
+    const lastY=h-(hist[hist.length-1]/top)*(h-12)-6;
+    hctx.fillStyle=gold; hctx.beginPath(); hctx.arc(w-2,lastY,3,0,7); hctx.fill();
+  }
+  function animatePrediction(){
+    const target=10000, batch = REDUCED?target:200;
+    const count={}; let n=0, fav=null; const hist=[];
+    $('#prob-bars').innerHTML=''; $('#btn-recalc').disabled=true;
+    function step(){
+      const b=Math.min(batch,target-n); const c=monteCarlo(b);
+      for(const t in c) count[t]=(count[t]||0)+c[t]; n+=b;
+      const arr=Object.entries(count).map(([t,k])=>[t,k/n]).sort((x,y)=>y[1]-x[1]);
+      if(!fav) fav=arr[0][0];
+      renderPodium(arr);
+      counter.textContent=n.toLocaleString('es');
+      const fp=(count[fav]||0)/n; hist.push(fp);
+      favEl.innerHTML=`${T[fav].flag} ${T[fav].es}: <b>${fmt(fp)}</b>`;
+      drawHero(hist);
+      if(n<target) requestAnimationFrame(step);
+      else { renderBars(arr); $('#btn-recalc').disabled=false; }
+    }
+    step();
+  }
+  $('#btn-recalc').onclick=animatePrediction;
 
   // ---------- panel Elo ----------
   const aliveSorted=Object.keys(T).filter(t=>t!=='South Africa').sort((a,b)=>T[b].elo-T[a].elo);
@@ -144,6 +176,6 @@ if (typeof document !== 'undefined') {
   $('#mc-reset').onclick=()=>{mcN=0;mcCount={};mcFav=null;mcHist=[];$('#mc-count').textContent='0 simulaciones';drawMC();};
   drawMC();
 
-  // arrancar: calcular la predicción (deja pintar el hero primero)
-  setTimeout(renderPrediction, 30);
+  // arrancar: animar la predicción (deja pintar el hero primero)
+  setTimeout(animatePrediction, 60);
 }
