@@ -9,8 +9,9 @@ cómo funciona con tres paneles interactivos.
 
 ## Qué hace
 
-- **Simular el Mundial** → anima la ronda de 32 → final, con marcadores sorteados por el modelo.
-- **Tirar 10.000 veces** → muestra la probabilidad de campeón de cada selección.
+- **Predicción al instante**: al entrar, corre 10.000 simulaciones Monte Carlo y muestra la
+  **probabilidad de campeón** de cada selección (podio + ranking).
+- **Tarjeta de credibilidad**: qué tan bien le pegó el modelo a los partidos ya jugados (out-of-sample).
 - **Paneles educativos** en vivo: Elo (fuerza → probabilidad), Monte Carlo (convergencia), Dixon-Coles (marcadores).
 
 ## Editar la estética

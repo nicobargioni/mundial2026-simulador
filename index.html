@@ -3,53 +3,40 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Simulador Mundial 2026 · ¿quién sale campeón?</title>
-<meta name="description" content="Simulá el Mundial 2026 con un modelo estadístico (Elo + Dixon-Coles + Monte Carlo) corriendo en tu navegador. Mirá el bracket llenarse partido a partido y entendé cómo funciona.">
-<!-- Fuente deportiva (si no carga, usa la del sistema). Podés cambiarla acá. -->
+<title>Predicción Mundial 2026 · ¿quién sale campeón?</title>
+<meta name="description" content="Predicción del Mundial 2026 con un modelo estadístico (Elo + Dixon-Coles + Monte Carlo) calibrado, corriendo en tu navegador. Probabilidad de campeón de cada selección.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<canvas id="confetti" aria-hidden="true"></canvas>
-
 <header class="hero">
   <div class="flags-ticker" id="ticker" aria-hidden="true"></div>
   <div class="hero-in">
     <p class="eyebrow">EE.UU. · Canadá · México — ronda de 32 en juego</p>
-    <h1>Simulá el <span class="gold">Mundial 2026</span></h1>
-    <p class="dek">Un modelo estadístico que corre <b>en tu navegador</b>: rankea a cada selección con Elo,
-      le pone goles con Dixon-Coles y juega el torneo que falta. Tocá el botón y mirá quién levanta la copa.
-      Cada simulación es distinta — porque el fútbol también lo es.</p>
-    <div class="controls">
-      <button id="btn-sim" class="btn btn-primary">⚽ Simular el Mundial</button>
-      <button id="btn-mc" class="btn btn-ghost">📊 Tirar 10.000 veces</button>
-      <button id="btn-skip" class="btn btn-mini" hidden>saltar animación →</button>
-    </div>
-    <div id="champion" class="champion" hidden></div>
+    <h1>¿Quién gana el <span class="gold">Mundial 2026</span>?</h1>
+    <p class="dek">Esto es lo que <b>predice el modelo</b>: con qué frecuencia gana cada selección si el torneo
+      que falta se jugara <b>10.000 veces</b>. Un modelo estadístico calibrado (Elo + Dixon-Coles + machine
+      learning) que corre entero <b>en tu navegador</b>, con datos reales de partidos internacionales.</p>
+    <div class="podium" id="podium"><span class="loading">Calculando 10.000 simulaciones…</span></div>
   </div>
 </header>
 
 <main>
-  <section class="panel cred" id="cred"></section>
-
-  <section class="panel" id="bracket-section">
-    <div class="rounds" id="rounds"></div>
-    <p class="hint" id="bracket-hint">El cuadro arranca en la ronda de 32. Canadá ya está en la siguiente fase
-      (le ganó 1-0 a Sudáfrica). Dale a <b>Simular</b> para jugar los 31 partidos que faltan.</p>
-  </section>
-
-  <section class="panel" id="prob-section" hidden>
-    <h2>Probabilidad de campeón <span class="sub" id="prob-sub"></span></h2>
-    <p class="lead">Una simulación es una anécdota. Diez mil empiezan a ser una <b>probabilidad</b>: así de seguido
-      gana cada selección si el Mundial se jugara una y otra vez.</p>
+  <section class="panel" id="prob-section">
+    <h2>Probabilidad de campeón <span class="sub" id="prob-sub">· 10.000 simulaciones</span></h2>
+    <p class="lead">Cada partido que falta es incierto, así que jugamos el torneo diez mil veces y contamos cuántas
+      gana cada uno. Eso es la probabilidad: estable, repetible — no el resultado de una corrida con suerte.</p>
     <div id="prob-bars" class="bars"></div>
+    <button id="btn-recalc" class="btn btn-mini" style="margin-top:16px">🔄 volver a tirar 10.000</button>
   </section>
+
+  <section class="panel cred" id="cred"></section>
 
   <section class="edu-intro panel">
     <h2>¿Cómo funciona? <span class="sub">tres ideas, en vivo</span></h2>
-    <p class="lead">No hay magia: hay tres herramientas clásicas encadenadas. Jugá con cada una.</p>
+    <p class="lead">No hay magia: tres herramientas clásicas encadenadas. Jugá con cada una.</p>
   </section>
 
   <div class="edu-grid">
@@ -83,9 +70,9 @@
     <section class="card edu" id="edu-dc">
       <span class="tag">3 · goles</span>
       <h3>Dixon-Coles: del rating al marcador</h3>
-      <p>Convertimos la fuerza en <b>goles esperados</b> y sorteamos un marcador. Dixon-Coles corrige un detalle
-        real: los empates 0-0 y 1-1 pasan más seguido de lo que predice la fórmula simple. Probabilidad de cada
-        resultado:</p>
+      <p>Convertimos la fuerza en <b>goles esperados</b> y calculamos la probabilidad de cada marcador.
+        Dixon-Coles corrige un detalle real: los empates 0-0 y 1-1 pasan más seguido de lo que dice la fórmula
+        simple. Probabilidad de cada resultado:</p>
       <div class="duel">
         <select id="dc-a" class="sel"></select>
         <span class="vs">vs</span>
@@ -102,11 +89,11 @@
       <li><b>Datos:</b> ~49.500 partidos internacionales (1872→2026). El modelo se entrena con resultados reales,
         pesando más los recientes (recencia).</li>
       <li><b>Estado real:</b> al 29-jun-2026 terminó la fase de grupos y arrancó la ronda de 32. Quedan 31 partidos
-        por jugar; el simulador los resuelve.</li>
+        por jugar; el modelo simula desde ahí.</li>
       <li><b>Modelo:</b> un <b>ensamble</b> de 6 modelos (Elo, Dixon-Coles/Poisson, regresión, Random Forest,
-        XGBoost y red neuronal), calibrado, que define cada cruce; el torneo se juega miles de veces con
-        Monte Carlo. Los empates en eliminación se resuelven por penales con leve ventaja al de mejor Elo.</li>
-      <li><b>Los paneles de abajo</b> muestran las "piezas" del modelo por separado (Elo, goles); el simulador
+        XGBoost y red neuronal), calibrado, que define cada cruce; el torneo se juega 10.000 veces con Monte Carlo.
+        Los empates en eliminación se resuelven por penales con leve ventaja al de mejor Elo.</li>
+      <li><b>Los paneles de arriba</b> muestran las "piezas" del modelo por separado (Elo, goles); la predicción
         combina las seis.</li>
       <li><b>Límites honestos:</b> cancha neutral, sin lesiones ni convocatorias. Es un mapa de probabilidades,
         no una bola de cristal.</li>
