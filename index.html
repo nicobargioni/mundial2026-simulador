@@ -7,72 +7,76 @@
 <meta name="description" content="Predicción del Mundial 2026 con un modelo estadístico (Elo + Dixon-Coles + Monte Carlo) calibrado, corriendo en tu navegador. Mirá las simulaciones converger en vivo.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<header class="hero">
-  <div class="flags-ticker" id="ticker" aria-hidden="true"></div>
-  <div class="hero-in">
-    <p class="eyebrow">EE.UU. · Canadá · México — ronda de 32 en juego</p>
-    <h1>¿Quién gana el <span class="gold">Mundial 2026</span>?</h1>
-    <p class="dek">Esto es lo que <b>predice el modelo</b>. Mirá las <b>10.000 simulaciones</b> del torneo
-      acumularse en vivo y asentarse en la probabilidad de campeón de cada selección.</p>
+<div class="pitch" aria-hidden="true"></div>
 
-    <div class="mc-live">
+<nav class="topbar">
+  <div class="brand"><span class="logo">🏆</span><b>Mundial 2026</b><span class="brand-sub">Predicción</span></div>
+  <div class="navpills">
+    <a href="#prediccion" class="pill active">Predicción</a>
+    <a href="#glosario" class="pill">Glosario</a>
+    <a href="#como" class="pill">Cómo funciona</a>
+  </div>
+  <div class="navright"><span class="pill ghost">datos · jun 2026</span></div>
+</nav>
+
+<header class="hero" id="prediccion">
+  <div class="flags-ticker" id="ticker" aria-hidden="true"></div>
+  <div class="hero-grid">
+
+    <aside class="glass card">
+      <div class="card-head"><h2>Predicción</h2><span class="kicker">campeón</span></div>
       <div class="podium" id="podium"><span class="loading">Simulando…</span></div>
-      <div class="mc-meter">
-        <canvas id="hero-mc" height="66" aria-label="Convergencia de la simulación"></canvas>
+    </aside>
+
+    <div class="centerpiece">
+      <div class="trophy">🏆</div>
+      <h1>¿Quién gana el <span class="gold">Mundial</span>?</h1>
+      <p class="dek">Mirá las <b>10.000 simulaciones</b> del torneo acumularse en vivo y asentarse en la
+        probabilidad de campeón de cada selección.</p>
+      <div class="mc-meter glass">
+        <canvas id="hero-mc" height="64" aria-label="Convergencia de la simulación"></canvas>
         <div class="mc-status"><b id="sim-counter">0</b> simulaciones · <span id="sim-fav">arrancando…</span></div>
-        <button id="btn-recalc" class="btn btn-mini">🔄 volver a tirar 10.000</button>
+        <button id="btn-recalc" class="pill">🔄 volver a tirar 10.000</button>
       </div>
     </div>
 
-    <div class="hero-explain">
-      <div class="he-item"><b>① Qué es</b><span>La predicción del campeón: la probabilidad de que cada
-        selección gane el Mundial que falta.</span></div>
-      <div class="he-item"><b>② Qué ves</b><span>El <b>podio</b> son los 3 más probables; la curva muestra cómo
-        la probabilidad se <b>estabiliza</b> al sumar simulaciones. Abajo, el ranking completo.</span></div>
-      <div class="he-item"><b>③ De dónde sale</b><span>Un <b>ensamble calibrado de 6 modelos</b> jugando el
-        torneo 10.000 veces. <a href="#glosario">Ver glosario →</a></span></div>
-    </div>
+    <aside class="glass card cred" id="cred"></aside>
   </div>
 </header>
 
 <main>
-  <section class="panel" id="prob-section">
+  <section class="glass panel" id="prob-section">
     <h2>Probabilidad de campeón <span class="sub">· 10.000 simulaciones</span></h2>
     <p class="lead">Cada partido que falta es incierto, así que jugamos el torneo diez mil veces y contamos
       cuántas gana cada uno. Eso es la probabilidad: estable y repetible — no el resultado de una corrida con suerte.</p>
     <div id="prob-bars" class="bars"></div>
   </section>
 
-  <section class="panel cred" id="cred"></section>
-
-  <section class="panel" id="glosario">
+  <section class="glass panel" id="glosario">
     <h2>Glosario <span class="sub">qué significa cada cosa</span></h2>
     <p class="lead">Las ideas y las métricas, en criollo.</p>
     <div class="gloss">
       <div class="term"><b>Probabilidad de campeón</b><p>De cada 100 torneos simulados, en cuántos sale campeona
         esa selección. Es un reparto: suma 100% entre todos.</p></div>
       <div class="term"><b>Simulación de Monte Carlo</b><p>Jugar el torneo miles de veces tirando una "moneda
-        cargada" en cada partido (el favorito tiene más chance, no la certeza) y contar los resultados. La
-        probabilidad <i>emerge</i> de la repetición.</p></div>
+        cargada" en cada partido (el favorito tiene más chance, no la certeza) y contar. La probabilidad
+        <i>emerge</i> de la repetición.</p></div>
       <div class="term"><b>Elo</b><p>Un rating de fuerza por selección: sube al ganar, baja al perder, y pesa más
-        vencer a un rival fuerte. La diferencia de Elo entre dos equipos se traduce en probabilidad.</p></div>
-      <div class="term"><b>Modelo de goles (Poisson / Dixon-Coles)</b><p>Predice cuántos goles mete cada equipo.
-        <b>Dixon-Coles</b> corrige un detalle real: los empates 0-0 y 1-1 ocurren más seguido de lo que dice la
-        fórmula simple.</p></div>
-      <div class="term"><b>Ensamble</b><p>Combinar 6 modelos distintos (Elo, goles, regresión logística, Random
-        Forest, XGBoost y red neuronal) promediando sus probabilidades. Suele predecir mejor que cualquiera solo.</p></div>
+        vencer a un rival fuerte. La diferencia de Elo se traduce en probabilidad.</p></div>
+      <div class="term"><b>Dixon-Coles (modelo de goles)</b><p>Predice cuántos goles mete cada equipo, y corrige un
+        detalle real: los empates 0-0 y 1-1 ocurren más seguido de lo que dice la fórmula simple.</p></div>
+      <div class="term"><b>Ensamble</b><p>Combinar 6 modelos (Elo, goles, regresión, Random Forest, XGBoost y red
+        neuronal) promediando sus probabilidades. Suele predecir mejor que cualquiera solo.</p></div>
       <div class="term"><b>Calibración</b><p>Ajustar las probabilidades para que <i>digan la verdad</i>: que de las
         cosas a las que les asigna 70%, ocurran cerca del 70% de las veces.</p></div>
-      <div class="term"><b>Recencia</b><p>Al entrenar, pesar más los partidos recientes que los viejos: el
-        presente informa mejor que 2010.</p></div>
       <div class="term"><b>Accuracy (aciertos)</b><p>El % de partidos donde el modelo le pegó al resultado
         (gana uno / empate / gana el otro). Acá: <b>60%</b> de 73 partidos ya jugados.</p></div>
-      <div class="term"><b>RPS — Ranked Probability Score</b><p>Mide el error de las <i>probabilidades</i> teniendo
-        en cuenta el orden (ganar–empatar–perder). <b>0 = perfecto; más bajo, mejor.</b> Castiga poco errar por poco.</p></div>
+      <div class="term"><b>RPS — Ranked Probability Score</b><p>Mide el error de las probabilidades teniendo en
+        cuenta el orden (ganar–empatar–perder). <b>Más bajo, mejor.</b> Castiga poco errar por poco.</p></div>
       <div class="term"><b>Log-loss</b><p>Otra medida del error de las probabilidades. Castiga fuerte estar muy
         seguro y equivocarse. <b>Más bajo, mejor.</b></p></div>
       <div class="term"><b>Out-of-sample</b><p>Probar el modelo en partidos que <i>no vio</i> al entrenar — la
@@ -80,56 +84,44 @@
     </div>
   </section>
 
-  <section class="edu-intro panel">
-    <h2>¿Cómo funciona? <span class="sub">las piezas, en vivo</span></h2>
-    <p class="lead">No hay magia: tres herramientas clásicas encadenadas. Jugá con cada una.</p>
+  <section class="panel" id="como" style="padding:0;background:none;border:none;box-shadow:none">
+    <h2 style="padding:0 4px">¿Cómo funciona? <span class="sub">las piezas, en vivo</span></h2>
+    <p class="lead" style="padding:0 4px">Tres herramientas clásicas encadenadas. Jugá con cada una.</p>
+    <div class="edu-grid">
+      <section class="glass edu" id="edu-elo">
+        <span class="tag">1 · fuerza</span>
+        <h3>Elo: ¿quién es mejor?</h3>
+        <p>El <b>rating</b> sube si ganás y baja si perdés, pesando más a los rivales fuertes. La diferencia se
+          traduce en probabilidad. Probá un cruce:</p>
+        <div class="duel"><select id="elo-a" class="sel"></select><span class="vs">vs</span><select id="elo-b" class="sel"></select></div>
+        <div class="winbar" id="elo-bar"></div>
+        <p class="elo-read" id="elo-read"></p>
+      </section>
+      <section class="glass edu" id="edu-mc">
+        <span class="tag">2 · azar</span>
+        <h3>Monte Carlo: jugarlo mil veces</h3>
+        <p>No alcanza con jugar el torneo una vez. Lo jugamos miles y contamos. Mirá cómo el porcentaje se
+          <b>estabiliza</b> al sumar simulaciones:</p>
+        <canvas id="mc-canvas" height="150" aria-label="Convergencia de la probabilidad"></canvas>
+        <div class="mc-controls">
+          <button id="mc-step" class="pill btn-mini">+200 simulaciones</button>
+          <button id="mc-reset" class="pill btn-mini btn-reset">reiniciar</button>
+          <span class="mc-count" id="mc-count">0 simulaciones</span>
+        </div>
+      </section>
+      <section class="glass edu" id="edu-dc">
+        <span class="tag">3 · goles</span>
+        <h3>Dixon-Coles: del rating al marcador</h3>
+        <p>Convertimos la fuerza en <b>goles esperados</b> y calculamos la probabilidad de cada marcador
+          (los empates bajos pesan un poco más). Probabilidad de cada resultado:</p>
+        <div class="duel"><select id="dc-a" class="sel"></select><span class="vs">vs</span><select id="dc-b" class="sel"></select></div>
+        <div id="dc-grid" class="dc-grid" role="img" aria-label="Mapa de calor de marcadores probables"></div>
+        <p class="dc-read" id="dc-read"></p>
+      </section>
+    </div>
   </section>
 
-  <div class="edu-grid">
-    <section class="card edu" id="edu-elo">
-      <span class="tag">1 · fuerza</span>
-      <h3>Elo: ¿quién es mejor?</h3>
-      <p>Cada selección tiene un <b>rating</b> que sube si gana y baja si pierde, pesando más a los rivales
-        fuertes. La diferencia de rating se traduce en probabilidad. Probá un cruce:</p>
-      <div class="duel">
-        <select id="elo-a" class="sel"></select>
-        <span class="vs">vs</span>
-        <select id="elo-b" class="sel"></select>
-      </div>
-      <div class="winbar" id="elo-bar"></div>
-      <p class="elo-read" id="elo-read"></p>
-    </section>
-
-    <section class="card edu" id="edu-mc">
-      <span class="tag">2 · azar</span>
-      <h3>Monte Carlo: jugarlo mil veces</h3>
-      <p>Como cada partido es incierto, no alcanza con jugar el torneo una vez. Lo jugamos miles y contamos.
-        Mirá cómo el porcentaje se <b>estabiliza</b> a medida que sumás simulaciones:</p>
-      <canvas id="mc-canvas" height="150" aria-label="Convergencia de la probabilidad"></canvas>
-      <div class="mc-controls">
-        <button id="mc-step" class="btn btn-mini">+200 simulaciones</button>
-        <button id="mc-reset" class="btn btn-mini btn-reset">reiniciar</button>
-        <span class="mc-count" id="mc-count">0 simulaciones</span>
-      </div>
-    </section>
-
-    <section class="card edu" id="edu-dc">
-      <span class="tag">3 · goles</span>
-      <h3>Dixon-Coles: del rating al marcador</h3>
-      <p>Convertimos la fuerza en <b>goles esperados</b> y calculamos la probabilidad de cada marcador.
-        Dixon-Coles corrige que los empates 0-0 y 1-1 pasan más seguido de lo que dice la fórmula simple.
-        Probabilidad de cada resultado:</p>
-      <div class="duel">
-        <select id="dc-a" class="sel"></select>
-        <span class="vs">vs</span>
-        <select id="dc-b" class="sel"></select>
-      </div>
-      <div id="dc-grid" class="dc-grid" role="img" aria-label="Mapa de calor de marcadores probables"></div>
-      <p class="dc-read" id="dc-read"></p>
-    </section>
-  </div>
-
-  <section class="panel methodology">
+  <section class="glass panel methodology">
     <h2>La cocina</h2>
     <ul>
       <li><b>Datos:</b> ~49.500 partidos internacionales (1872→2026), pesando más los recientes (recencia).</li>
