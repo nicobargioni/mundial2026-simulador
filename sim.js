@@ -29,13 +29,13 @@ function elo3(h,a){
 
 // ---------- Monte Carlo del torneo (usa la matriz del ensamble final) ----------
 function simulateOnce(){
-  const W={};
+  const W={}, D=DATA.decided||{};
   for(const num of R32order){ const k=String(num),[t1,t2]=DATA.r32[k];
-    W[k]=DATA.decided[k] ? DATA.decided[k] : (Math.random()<MX[t1][t2]?t1:t2); }
-  for(const [tree] of [[DATA.R16],[DATA.QF],[DATA.SF]])
-    for(const k in tree){ const [f1,f2]=tree[k]; const a=W[f1],b=W[f2]; W[k]=Math.random()<MX[a][b]?a:b; }
+    W[k]=D[k] || (Math.random()<MX[t1][t2]?t1:t2); }
+  for(const tree of [DATA.R16,DATA.QF,DATA.SF])
+    for(const k in tree){ const [f1,f2]=tree[k]; const a=W[f1],b=W[f2]; W[k]=D[k] || (Math.random()<MX[a][b]?a:b); }
   const [f1,f2]=DATA.FINAL; const a=W[f1],b=W[f2];
-  return Math.random()<MX[a][b]?a:b;
+  return D['104'] || (Math.random()<MX[a][b]?a:b);
 }
 function monteCarlo(N){ const c={}; for(let i=0;i<N;i++){ const ch=simulateOnce(); c[ch]=(c[ch]||0)+1; } return c; }
 
@@ -44,7 +44,7 @@ if (typeof document !== 'undefined') {
   const $=s=>document.querySelector(s), el=(t,c)=>{const e=document.createElement(t); if(c)e.className=c; return e;};
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fmt = p => (p*100).toFixed(1)+'%';
-  $('#year').textContent='datos a jun-2026';
+  $('#year').textContent = DATA.updated ? ('actualizado '+DATA.updated) : 'datos a jun-2026';
 
   // tira de banderas: dos filas idénticas y anchas -> loop perfecto, sin huecos
   const flags=Object.values(T).map(t=>t.flag);
