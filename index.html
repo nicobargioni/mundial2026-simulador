@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador Mundial 2026 · ¿quién sale campeón?</title>
+<meta name="description" content="Simulá el Mundial 2026 con un modelo estadístico (Elo + Dixon-Coles + Monte Carlo) corriendo en tu navegador. Mirá el bracket llenarse partido a partido y entendé cómo funciona.">
+<!-- Fuente deportiva (si no carga, usa la del sistema). Podés cambiarla acá. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<header class="hero">
+  <div class="flags-ticker" id="ticker" aria-hidden="true"></div>
+  <div class="hero-in">
+    <p class="eyebrow">EE.UU. · Canadá · México — ronda de 32 en juego</p>
+    <h1>Simulá el <span class="gold">Mundial 2026</span></h1>
+    <p class="dek">Un modelo estadístico que corre <b>en tu navegador</b>: rankea a cada selección con Elo,
+      le pone goles con Dixon-Coles y juega el torneo que falta. Tocá el botón y mirá quién levanta la copa.
+      Cada simulación es distinta — porque el fútbol también lo es.</p>
+    <div class="controls">
+      <button id="btn-sim" class="btn btn-primary">⚽ Simular el Mundial</button>
+      <button id="btn-mc" class="btn btn-ghost">📊 Tirar 10.000 veces</button>
+      <button id="btn-skip" class="btn btn-mini" hidden>saltar animación →</button>
+    </div>
+    <div id="champion" class="champion" hidden></div>
+  </div>
+</header>
+
+<main>
+  <section class="panel" id="bracket-section">
+    <div class="rounds" id="rounds"></div>
+    <p class="hint" id="bracket-hint">El cuadro arranca en la ronda de 32. Canadá ya está en la siguiente fase
+      (le ganó 1-0 a Sudáfrica). Dale a <b>Simular</b> para jugar los 31 partidos que faltan.</p>
+  </section>
+
+  <section class="panel" id="prob-section" hidden>
+    <h2>Probabilidad de campeón <span class="sub" id="prob-sub"></span></h2>
+    <p class="lead">Una simulación es una anécdota. Diez mil empiezan a ser una <b>probabilidad</b>: así de seguido
+      gana cada selección si el Mundial se jugara una y otra vez.</p>
+    <div id="prob-bars" class="bars"></div>
+  </section>
+
+  <section class="edu-intro panel">
+    <h2>¿Cómo funciona? <span class="sub">tres ideas, en vivo</span></h2>
+    <p class="lead">No hay magia: hay tres herramientas clásicas encadenadas. Jugá con cada una.</p>
+  </section>
+
+  <div class="edu-grid">
+    <section class="card edu" id="edu-elo">
+      <span class="tag">1 · fuerza</span>
+      <h3>Elo: ¿quién es mejor?</h3>
+      <p>Cada selección tiene un <b>rating</b> que sube si gana y baja si pierde, pesando más a los rivales
+        fuertes. La diferencia de rating se traduce en probabilidad. Probá un cruce:</p>
+      <div class="duel">
+        <select id="elo-a" class="sel"></select>
+        <span class="vs">vs</span>
+        <select id="elo-b" class="sel"></select>
+      </div>
+      <div class="winbar" id="elo-bar"></div>
+      <p class="elo-read" id="elo-read"></p>
+    </section>
+
+    <section class="card edu" id="edu-mc">
+      <span class="tag">2 · azar</span>
+      <h3>Monte Carlo: jugarlo mil veces</h3>
+      <p>Como cada partido es incierto, no alcanza con jugar el torneo una vez. Lo jugamos miles y contamos.
+        Mirá cómo el porcentaje se <b>estabiliza</b> a medida que sumás simulaciones:</p>
+      <canvas id="mc-canvas" height="150" aria-label="Convergencia de la probabilidad"></canvas>
+      <div class="mc-controls">
+        <button id="mc-step" class="btn btn-mini">+200 simulaciones</button>
+        <button id="mc-reset" class="btn btn-mini btn-reset">reiniciar</button>
+        <span class="mc-count" id="mc-count">0 simulaciones</span>
+      </div>
+    </section>
+
+    <section class="card edu" id="edu-dc">
+      <span class="tag">3 · goles</span>
+      <h3>Dixon-Coles: del rating al marcador</h3>
+      <p>Convertimos la fuerza en <b>goles esperados</b> y sorteamos un marcador. Dixon-Coles corrige un detalle
+        real: los empates 0-0 y 1-1 pasan más seguido de lo que predice la fórmula simple. Probabilidad de cada
+        resultado:</p>
+      <div class="duel">
+        <select id="dc-a" class="sel"></select>
+        <span class="vs">vs</span>
+        <select id="dc-b" class="sel"></select>
+      </div>
+      <div id="dc-grid" class="dc-grid" role="img" aria-label="Mapa de calor de marcadores probables"></div>
+      <p class="dc-read" id="dc-read"></p>
+    </section>
+  </div>
+
+  <section class="panel methodology">
+    <h2>La cocina</h2>
+    <ul>
+      <li><b>Datos:</b> ~49.500 partidos internacionales (1872→2026). El modelo se entrena con resultados reales,
+        pesando más los recientes (recencia).</li>
+      <li><b>Estado real:</b> al 29-jun-2026 terminó la fase de grupos y arrancó la ronda de 32. Quedan 31 partidos
+        por jugar; el simulador los resuelve.</li>
+      <li><b>Modelo:</b> Elo (fuerza) → Dixon-Coles/Poisson (goles) → Monte Carlo (el torneo, miles de veces).
+        Los empates en eliminación se definen por penales con leve ventaja al de mejor Elo.</li>
+      <li><b>Límites honestos:</b> cancha neutral, sin lesiones ni convocatorias. Es un mapa de probabilidades,
+        no una bola de cristal.</li>
+    </ul>
+    <p class="credit">Experimento de datos · <span id="year"></span> · todo corre en tu navegador, sin servidor.</p>
+  </section>
+</main>
+
+<script src="data.js"></script>
+<script src="sim.js"></script>
+</body>
+</html>
