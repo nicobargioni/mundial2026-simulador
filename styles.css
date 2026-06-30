@@ -76,8 +76,16 @@ a{color:var(--lime);text-decoration:none}
 
 /* centerpiece: trofeo + título + Monte Carlo en vivo */
 .centerpiece{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:6px}
-.trophy-img{height:clamp(240px,40vh,460px);width:auto;display:block;
-  filter:drop-shadow(0 0 50px rgba(240,194,75,.5)) drop-shadow(0 20px 38px rgba(0,0,0,.6));
+.trophy-stage{position:relative;display:flex;justify-content:center;align-items:flex-end;padding-top:8px;width:100%}
+.trophy-stage::before{content:"";position:absolute;z-index:0;top:4%;left:50%;width:70%;height:84%;
+  transform:translateX(-50%);border-radius:50%;
+  background:radial-gradient(closest-side, rgba(240,194,75,.4), rgba(240,194,75,.12) 58%, transparent 76%);
+  filter:blur(16px)}
+.trophy-stage::after{content:"";position:absolute;z-index:0;bottom:-4px;left:50%;width:52%;height:30px;
+  transform:translateX(-50%);border-radius:50%;
+  background:radial-gradient(closest-side, rgba(0,0,0,.55), transparent 72%);filter:blur(6px)}
+.trophy-img{position:relative;z-index:1;height:clamp(270px,47vh,500px);width:auto;display:block;
+  filter:drop-shadow(0 0 22px rgba(240,194,75,.42)) drop-shadow(0 22px 30px rgba(0,0,0,.5));
   animation:float 6s ease-in-out infinite}
 @keyframes float{50%{transform:translateY(-12px)}}
 .centerpiece h1{font-size:clamp(2.2rem,5vw,3.4rem);text-transform:uppercase;margin:.1em 0 .15em}
