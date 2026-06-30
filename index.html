@@ -32,6 +32,8 @@
 </header>
 
 <main>
+  <section class="panel cred" id="cred"></section>
+
   <section class="panel" id="bracket-section">
     <div class="rounds" id="rounds"></div>
     <p class="hint" id="bracket-hint">El cuadro arranca en la ronda de 32. Canadá ya está en la siguiente fase
@@ -101,8 +103,11 @@
         pesando más los recientes (recencia).</li>
       <li><b>Estado real:</b> al 29-jun-2026 terminó la fase de grupos y arrancó la ronda de 32. Quedan 31 partidos
         por jugar; el simulador los resuelve.</li>
-      <li><b>Modelo:</b> Elo (fuerza) → Dixon-Coles/Poisson (goles) → Monte Carlo (el torneo, miles de veces).
-        Los empates en eliminación se definen por penales con leve ventaja al de mejor Elo.</li>
+      <li><b>Modelo:</b> un <b>ensamble</b> de 6 modelos (Elo, Dixon-Coles/Poisson, regresión, Random Forest,
+        XGBoost y red neuronal), calibrado, que define cada cruce; el torneo se juega miles de veces con
+        Monte Carlo. Los empates en eliminación se resuelven por penales con leve ventaja al de mejor Elo.</li>
+      <li><b>Los paneles de abajo</b> muestran las "piezas" del modelo por separado (Elo, goles); el simulador
+        combina las seis.</li>
       <li><b>Límites honestos:</b> cancha neutral, sin lesiones ni convocatorias. Es un mapa de probabilidades,
         no una bola de cristal.</li>
     </ul>

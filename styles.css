@@ -75,6 +75,21 @@ h2{font-size:clamp(1.5rem,4vw,2.2rem);text-transform:uppercase;margin-bottom:8px
 .lead{color:#c2cec7;max-width:66ch;margin:0 0 18px}
 .hint{color:var(--sage);font-size:.9rem;margin-top:16px}
 
+/* ---------- CREDIBILIDAD ---------- */
+.cred{background:linear-gradient(135deg,rgba(70,192,138,.10),rgba(70,192,138,.02));
+  border:1px solid var(--line);border-radius:var(--radius);padding:20px 24px}
+.cred-head{font-family:var(--font-head);text-transform:uppercase;letter-spacing:.04em;font-size:1rem;
+  display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.cred-head .dot{width:9px;height:9px;border-radius:99px;background:var(--mint);box-shadow:0 0 10px var(--mint)}
+.cred-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.cred .stat{flex:1;min-width:120px;background:rgba(0,0,0,.18);border:1px solid var(--line);border-radius:11px;
+  padding:13px 16px}
+.cred .stat b{font-family:var(--font-head);font-size:1.9rem;color:var(--mint);line-height:1;display:block;
+  font-variant-numeric:tabular-nums}
+.cred .stat .den{color:var(--sage);font-size:1.1rem}
+.cred .stat small{color:var(--sage);font-size:.74rem;line-height:1.3;display:block;margin-top:5px}
+.cred p{color:#c2cec7;font-size:.9rem;margin:0;max-width:74ch}
+
 /* ---------- BRACKET ---------- */
 .rounds{display:flex;gap:14px;overflow-x:auto;padding:18px 4px 20px;scrollbar-width:thin}
 .round{display:flex;flex-direction:column;justify-content:space-around;gap:10px;min-width:172px;flex:1}

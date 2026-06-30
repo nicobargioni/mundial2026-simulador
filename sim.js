@@ -25,22 +25,12 @@ function tau(x,y,lh,la){
   if(x===1&&y===1) return 1-RHO;
   return 1;
 }
-const eloWin = (h,a)=> 1/(1+Math.pow(10,(T[a].elo-T[h].elo)/400));   // P(h gana en penales ≈ Elo)
-
-const _oc = {};
-function outcome(h,a){            // {pH,pD,pA} con corrección Dixon-Coles
-  const key=h+'|'+a; if(_oc[key]) return _oc[key];
-  const [lh,la]=lambdas(h,a); let pH=0,pD=0,pA=0,s=0;
-  for(let x=0;x<=8;x++) for(let y=0;y<=8;y++){
-    let p=pois(x,lh)*pois(y,la); if(x<=1&&y<=1) p*=tau(x,y,lh,la);
-    s+=p; if(x>y)pH+=p; else if(x===y)pD+=p; else pA+=p;
-  }
-  const o={pH:pH/s,pD:pD/s,pA:pA/s}; _oc[key]=o; return o;
-}
-const _adv={};
-function pAdvance(h,a){           // P(h pasa de ronda) incluyendo penales
-  const key=h+'|'+a; if(_adv[key]!==undefined) return _adv[key];
-  const o=outcome(h,a); const v=o.pH + o.pD*eloWin(h,a); _adv[key]=v; return v;
+const MX = DATA.matrix;            // P(a pasa de ronda vs b) — del ENSAMBLE FINAL calibrado
+function elo3(h,a){                // 3-way usando SOLO Elo (para el panel educativo de Elo)
+  const we=1/(1+Math.pow(10,(T[a].elo-T[h].elo)/400));
+  const pD=0.27*Math.exp(-Math.pow(Math.max(0,T[h].elo-T[a].elo)/400,2)*2);
+  let pH=Math.max(we-pD/2,1e-4), pA=Math.max(1-we-pD/2,1e-4); const s=pH+pD+pA;
+  return {pH:pH/s,pD:pD/s,pA:pA/s};
 }
 function rpois(l){ if(l<=0)return 0; const L=Math.exp(-l); let k=0,p=1; do{k++;p*=Math.random();}while(p>L); return k-1; }
 function sampleScore(h,a){        // marcador muestreado (Dixon-Coles por rechazo)
@@ -49,12 +39,12 @@ function sampleScore(h,a){        // marcador muestreado (Dixon-Coles por rechaz
   return [rpois(lh),rpois(la)];
 }
 function resolve(t1,t2,withScore){
-  if(withScore){
-    let [s1,s2]=sampleScore(t1,t2); let pens=false, win;
-    if(s1>s2) win=t1; else if(s2>s1) win=t2; else { pens=true; win=Math.random()<eloWin(t1,t2)?t1:t2; }
-    return {a:t1,b:t2,sa:s1,sb:s2,winner:win,pens};
-  }
-  return {a:t1,b:t2,winner: Math.random()<pAdvance(t1,t2)?t1:t2};
+  const winner = Math.random() < MX[t1][t2] ? t1 : t2;     // ganador segun el modelo final
+  if(!withScore) return {a:t1,b:t2,winner};
+  let [x,y]=sampleScore(t1,t2);                            // marcador (Dixon-Coles) para la animacion
+  if(x===y) return {a:t1,b:t2,sa:x,sb:y,winner,pens:true}; // empate -> penales -> gana el del modelo
+  if((winner===t1)!==(x>y)){ const t=x; x=y; y=t; }        // que el marcador favorezca al ganador
+  return {a:t1,b:t2,sa:x,sb:y,winner,pens:false};
 }
 function simulateOnce(withScore){
   const W={}, res={};
@@ -84,6 +74,17 @@ if (typeof document !== 'undefined') {
   // flags ticker
   const flags=Object.values(T).map(t=>t.flag);
   $('#ticker').textContent = flags.concat(flags).join('  ');
+
+  // tarjeta de credibilidad (#2)
+  const S=DATA.stats;
+  $('#cred').innerHTML=`<div class="cred-head"><span class="dot"></span>¿Qué tan confiable es el modelo?</div>
+    <div class="cred-row">
+      <div class="stat"><b>${S.hits}<span class="den">/${S.n}</span></b><small>resultados acertados<br>(${S.acc}%)</small></div>
+      <div class="stat"><b>${S.rps}</b><small>RPS<br>(error; más bajo, mejor)</small></div>
+      <div class="stat"><b>${S.logloss}</b><small>log-loss</small></div>
+    </div>
+    <p>Medido contra los <b>${S.n} partidos del Mundial que ya se jugaron</b> y que el modelo <b>no vio</b> al
+      entrenar. Acierta cerca de <b>6 de cada 10</b>: el fútbol es ruidoso por diseño, pero le gana claro al azar.</p>`;
 
   // ---------- construir bracket ----------
   const rounds=[R32order,R16order,QForder,SForder,[FINAL_ID]];
@@ -210,7 +211,7 @@ if (typeof document !== 'undefined') {
   function fillSel(sel,def){ aliveSorted.forEach(t=>{const o=el('option');o.value=t;o.textContent=T[t].flag+' '+T[t].es;sel.append(o);}); sel.value=def; }
   const eA=$('#elo-a'),eB=$('#elo-b'); fillSel(eA,'Argentina'); fillSel(eB,'Brazil');
   function renderElo(){
-    const a=eA.value,b=eB.value, o=outcome(a,b);
+    const a=eA.value,b=eB.value, o=elo3(a,b);
     $('#elo-bar').innerHTML=`<span class="w-a" style="width:${o.pH*100}%">${o.pH>0.12?fmtPct(o.pH):''}</span>
       <span class="w-d" style="width:${o.pD*100}%">${o.pD>0.12?'X':''}</span>
       <span class="w-b" style="width:${o.pA*100}%">${o.pA>0.12?fmtPct(o.pA):''}</span>`;
